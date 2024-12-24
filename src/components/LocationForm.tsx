@@ -1,5 +1,5 @@
 import React, { useState, useEffect }  from 'react';
-import { partsApi, Location } from '../../../src/api/partsApi';
+import { partsApi, Location } from '../api/partsApi';
 
 
 const LocationForm = () => {

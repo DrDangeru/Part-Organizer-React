@@ -1,10 +1,10 @@
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost:3000';
 
 export interface Part {
   partName: string;
   partId: string;
-  partDetails?: string;
-  locationId?: string;
+  partDetails: string;
+  locationName: string;
   container: string;
   row: string;
   position: string;

@@ -12,8 +12,8 @@ export interface Location { // interface
 export interface Part {
   partName: string;
   partId: string;
-  partDetails?: string;
-  locationId?: string;
+  partDetails: string;
+  locationName: string;
   container: string;
   row: string;
   position: string;

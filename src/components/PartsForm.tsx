@@ -51,7 +51,7 @@ const PartsForm = () => {
                 partName,
                 partId,
                 partDetails,
-                locationId: locationId || '',
+                locationName: '',
                 container,
                 row,
                 position
@@ -134,7 +134,7 @@ const PartsForm = () => {
                                 <h4 className="font-bold">{part.partName}</h4>
                                 <p>ID: {part.partId}</p>
                                 {part.partDetails && <p>Details: {part.partDetails}</p>}
-                                {part.locationId && <p>Location ID: {part.locationId}</p>}
+                                {part.locationName && <p>Location ID: {part.locationName}</p>}
                                 <p>Container: {part.container}</p>
                                 <p>Row: {part.row}</p>
                                 <p>Position: {part.position}</p>
