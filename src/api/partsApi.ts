@@ -1,8 +1,8 @@
 const API_BASE_URL = 'http://localhost:3000';
 
 export interface Part {
+  id?: number;
   partName: string;
-  partId: string;
   partDetails: string;
   locationName: string;
   container: string;
@@ -11,8 +11,8 @@ export interface Part {
 }
 
 export interface Location {
+  id?: number;
   locationName: string;
-  locationId: string;
   container: string;
   row: string;
   position: string;

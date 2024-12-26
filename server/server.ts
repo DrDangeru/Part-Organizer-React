@@ -20,9 +20,9 @@ app.use(bodyParser.json());
 
 // Routes for locations
 app.post('/locations', async (req, res) => {
-  const { locationName, locationId, container, row, position } = req.body;
+  const { locationName, container, row, position } = req.body;
   try {
-    const location = await insertLocation(locationName, locationId, container, row, position);
+    const location = await insertLocation(locationName, container, row, position);
     res.json(location);
   } catch (error) {
     res.status(500).json({ error: error});
@@ -45,7 +45,7 @@ app.get('/locations', async (req, res) => {
 // Route to get location by ID
 app.get('/locations/:id', async (req, res) => {
   try {
-    const location = await getLocationById(req.params.id);
+    const location = await getLocationById(req.params.id as unknown as number);
     if (!location) {
       return res.status(404).json({ error: 'Location not found' });
     }
@@ -72,27 +72,33 @@ app.get('/locations/:id/parts', async (req, res) => {
 
 // Routes for parts
 app.post('/parts', async (req, res) => {
-  const { partName, partId, partDetails, locationName, container, row, position} = req.body;
+  const { partName, partDetails, locationName, container, row, position} = req.body;
+  console.log('Received part data:', { partName, partDetails, locationName, container, row, position });
+  
   try {
-    const part = await insertPart(partName, partId, partDetails, locationName, container, row, position);
+    const part = await insertPart(partName, partDetails, locationName, container, row, position);
+    console.log('Part inserted successfully:', part);
     res.json(part);
   } catch (error) {
-    res.status(500).json({ error: error  });
+    console.error('Error inserting part:', error);
+    res.status(500).json({ error: error ||'Error inserting part' });
   }
 });
 
 app.get('/parts', async (req, res) => {
   try {
     const parts = await getParts();
+    console.log('Retrieved parts:', parts);
     res.json(parts);
   } catch (error) {
-    res.status(500).json({ error: error });
+    console.error('Error getting parts:', error);
+    res.status(500).json({ error: error || 'Error getting parts' });
   }
 });
 
 app.get('/parts/:id', async (req, res) => {
   try {
-    const part = await getPartById(req.params.id);
+    const part = await getPartById(req.params.id as unknown as number);
     if (part) {
       res.json(part);
     } else {

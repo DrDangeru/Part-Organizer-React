@@ -1,17 +1,17 @@
 import db from './db.ts';
 
-
-export interface Location { // interface
+// interface
+export interface Location {
+  id?: number;
   locationName: string;
-  locationId: string;
   container: string;
   row: string;
   position: string;
 }
 
 export interface Part {
+  id?: number;
   partName: string;
-  partId: string;
   partDetails: string;
   locationName: string;
   container: string;
@@ -22,8 +22,8 @@ export interface Part {
 export const LocationService = {
   create: (location: Location) => {
     const stmt = db.prepare(`
-      INSERT INTO locations (locationName, locationId, container, row, position)
-      VALUES (@locationName, @locationId, @container, @row, @position)
+      INSERT INTO locations (locationName, container, row, position)
+      VALUES (@locationName, @container, @row, @position)
     `);
     return stmt.run(location);
   },
@@ -33,9 +33,9 @@ export const LocationService = {
     return stmt.all() as unknown as Location[];
   },
 
-  getById: (locationId : string): Location | undefined => {
-    const stmt = db.prepare(`SELECT * FROM locations WHERE locationId = ?`);
-    const result = stmt.get(locationId);
+  getById: (id: number): Location | undefined => {
+    const stmt = db.prepare(`SELECT * FROM locations WHERE id = ?`);
+    const result = stmt.get(id);
     return result  as unknown as Location || undefined;
   }
 };
@@ -43,8 +43,8 @@ export const LocationService = {
 export const PartService = {
   create: (part: Part) => {
     const stmt = db.prepare(`
-      INSERT INTO parts (partName, partId, partDetails, locationId, container, row, position)
-      VALUES (@partName, @partId, @partDetails, @locationId, @container, @row, @position)
+      INSERT INTO parts (partName, partDetails, locationName, container, row, position)
+      VALUES (@partName, @partDetails, @locationName, @container, @row, @position)
     `);
     return stmt.run(part);
   },
@@ -54,9 +54,9 @@ export const PartService = {
     return stmt.all() as unknown as Part[];
   },
 
-  getById: (partId: string): Part | undefined => {
-    const stmt = db.prepare(`SELECT * FROM parts WHERE partId = ?`);
-    return stmt.get(partId) as unknown as Part;
+  getById: (id: number): Part | undefined => {
+    const stmt = db.prepare(`SELECT * FROM parts WHERE id = ?`);
+    return stmt.get(id) as unknown as Part;
   },
 
   getPartByLocation: (locationId: string): Part[] => {
