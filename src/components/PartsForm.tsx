@@ -87,7 +87,7 @@ const PartsForm = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Part</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="part-form">
-                    <label htmlFor="partName" className="block text-gray-700 text-sm font-bold mb-2">Part Name*</label>
+                    <label htmlFor="partName" className="block text-gray-700 text-sm mb-2">Part Name*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -99,7 +99,7 @@ const PartsForm = () => {
                 </div>
                 
                 <div className="part-form">
-                    <label htmlFor="partDetails" className="block text-gray-700 text-sm font-bold mb-2">Part Details</label>
+                    <label htmlFor="partDetails" className="block text-gray-700 text-sm mb-2">Part Details</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -110,7 +110,7 @@ const PartsForm = () => {
                 </div>
 
                 <div className="part-form">
-                    <label htmlFor="locationId" className="block text-gray-700 text-sm font-bold mb-2">Location*</label>
+                    <label htmlFor="locationId" className="block text-gray-700 text-sm mb-2">Location*</label>
                     <select 
                         className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!locationId && 'border-red-500'}`}
                         id="locationId" 
@@ -131,7 +131,7 @@ const PartsForm = () => {
                 </div>
 
                 <div className="part-form">
-                    <label htmlFor="container" className="block text-gray-700 text-sm font-bold mb-2">Container*</label>
+                    <label htmlFor="container" className="block text-gray-700 text-sm mb-2">Container*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100"
@@ -143,7 +143,7 @@ const PartsForm = () => {
                 </div>
 
                 <div className="part-form">
-                    <label htmlFor="row" className="block text-gray-700 text-sm font-bold mb-2">Row*</label>
+                    <label htmlFor="row" className="block text-gray-700 text-sm mb-2">Row*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -155,7 +155,7 @@ const PartsForm = () => {
                 </div>
 
                 <div className="part-form">
-                    <label htmlFor="position" className="block text-gray-700 text-sm font-bold mb-2">Position*</label>
+                    <label htmlFor="position" className="block text-gray-700 text-sm mb-2">Position*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"

@@ -60,7 +60,7 @@ const LocationForm = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Location</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="location-form">
-                    <label htmlFor="locationName" className="block text-gray-700 text-sm font-bold mb-2">Location Name*</label>
+                    <label htmlFor="locationName" className="block text-gray-700 text-sm mb-2">Location Name*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -72,7 +72,7 @@ const LocationForm = () => {
                 </div>
 
                 <div className="location-form">
-                    <label htmlFor="container" className="block text-gray-700 text-sm font-bold mb-2">Container*</label>
+                    <label htmlFor="container" className="block text-gray-700 text-sm mb-2">Container*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -84,7 +84,7 @@ const LocationForm = () => {
                 </div>
 
                 <div className="location-form">
-                    <label htmlFor="row" className="block text-gray-700 text-sm font-bold mb-2">Row*</label>
+                    <label htmlFor="row" className="block text-gray-700 text-sm mb-2">Row*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -96,7 +96,7 @@ const LocationForm = () => {
                 </div>
 
                 <div className="location-form">
-                    <label htmlFor="position" className="block text-gray-700 text-sm font-bold mb-2">Position*</label>
+                    <label htmlFor="position" className="block text-gray-700 text-sm mb-2">Position*</label>
                     <input 
                         type="text" 
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
