@@ -3,6 +3,8 @@ import Sidebar from './components/Sidebar';
 import Home from './components/Home';
 import LocationForm from './components/LocationForm';
 import PartsForm from './components/PartsForm';
+import LocationsList from './components/LocationsList';
+import PartsList from './components/PartsList';
 import './App.css';
 
 function App() {
@@ -14,8 +16,10 @@ function App() {
           <div className="content-container">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/locations" element={<LocationForm />} />
-              <Route path="/parts" element={<PartsForm />} />
+              <Route path="/locations" element={<LocationsList />} />
+              <Route path="/parts" element={<PartsList />} />
+              <Route path="/add-location" element={<LocationForm />} />
+              <Route path="/add-part" element={<PartsForm />} />
             </Routes>
           </div>
         </main>

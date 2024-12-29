@@ -76,6 +76,7 @@ const PartsForm = () => {
     const getLocationDetails = (locationName: string) => {
         const location = locations.find(loc => loc.locationName === locationName);
         if (location) {
+            // Only suggest the container, don't force it
             setContainer(location.container);
             setRow(location.row);
             setPosition(location.position);
@@ -84,13 +85,13 @@ const PartsForm = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h2 className="text-2xl font-bold mb-4">Add New Part</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="part-form">
+            <h2 className="text-2xl font-bold mb-4 text-center">Add New Part</h2>
+            <form onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
+                <div className="part-form text-center">
                     <label htmlFor="partName" className="block text-gray-700 text-sm mb-2">Part Name*</label>
                     <input 
                         type="text" 
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-center"
                         id="partName" 
                         value={partName} 
                         onChange={(e) => setPartName(e.target.value)}
@@ -98,21 +99,21 @@ const PartsForm = () => {
                     />
                 </div>
                 
-                <div className="part-form">
+                <div className="part-form text-center">
                     <label htmlFor="partDetails" className="block text-gray-700 text-sm mb-2">Part Details</label>
                     <input 
                         type="text" 
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-center"
                         id="partDetails" 
                         value={partDetails} 
                         onChange={(e) => setPartDetails(e.target.value)}
                     />
                 </div>
 
-                <div className="part-form">
+                <div className="part-form text-center">
                     <label htmlFor="locationId" className="block text-gray-700 text-sm mb-2">Location*</label>
                     <select 
-                        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!locationId && 'border-red-500'}`}
+                        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-center ${!locationId && 'border-red-500'}`}
                         id="locationId" 
                         value={locationId} 
                         onChange={(e) => {
@@ -130,23 +131,29 @@ const PartsForm = () => {
                     </select>
                 </div>
 
-                <div className="part-form">
+                <div className="part-form text-center">
                     <label htmlFor="container" className="block text-gray-700 text-sm mb-2">Container*</label>
                     <input 
                         type="text" 
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-center"
                         id="container" 
                         value={container}
-                        readOnly
+                        onChange={(e) => setContainer(e.target.value)}
+                        placeholder="Enter container name"
                         required
                     />
+                    {locationId && (
+                        <p className="text-sm text-gray-600 mt-1">
+                            Suggested container from location: {locations.find(loc => loc.locationName === locationId)?.container}
+                        </p>
+                    )}
                 </div>
 
-                <div className="part-form">
+                <div className="part-form text-center">
                     <label htmlFor="row" className="block text-gray-700 text-sm mb-2">Row*</label>
                     <input 
                         type="text" 
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-center"
                         id="row" 
                         value={row}
                         onChange={(e) => setRow(e.target.value)}
@@ -154,11 +161,11 @@ const PartsForm = () => {
                     />
                 </div>
 
-                <div className="part-form">
+                <div className="part-form text-center">
                     <label htmlFor="position" className="block text-gray-700 text-sm mb-2">Position*</label>
                     <input 
                         type="text" 
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-center"
                         id="position" 
                         value={position}
                         onChange={(e) => setPosition(e.target.value)}
@@ -166,22 +173,24 @@ const PartsForm = () => {
                     />
                 </div>
 
-                <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Add Part
-                </button>
+                <div className="text-center">
+                    <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Add Part
+                    </button>
+                </div>
             </form>
 
             {alertMessage && (
-                <div className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded">
+                <div className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded text-center max-w-lg mx-auto">
                     {alertMessage}
                 </div>
             )}
 
             <div className="mt-8">
-                <h3 className="text-xl font-bold mb-4">Parts List</h3>
+                <h3 className="text-xl font-bold mb-4 text-center">Parts List</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {parts.map((part) => (
-                        <div key={part.id} className="bg-white shadow rounded p-4">
+                        <div key={part.id} className="bg-white shadow rounded p-4 text-center">
                             <h4 className="font-bold">{part.partName}</h4>
                             {part.partDetails && <p>Details: {part.partDetails}</p>}
                             <p>Location: {part.locationName}</p>

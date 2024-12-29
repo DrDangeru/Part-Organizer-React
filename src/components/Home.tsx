@@ -7,7 +7,7 @@ const Home = () => {
             <div className="text-center">
                 <h1 className="text-4xl font-bold mb-8">Welcome to Parts Manager</h1>
                 <p className="text-xl mb-12 text-gray-600">
-                    Organize and track your parts inventory efficiently
+                    View Locations with parts storage
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -17,7 +17,7 @@ const Home = () => {
                     >
                         <h2 className="text-2xl font-bold mb-4">Manage Locations</h2>
                         <p className="text-gray-600">
-                            Create and organize storage locations for your parts
+                            View Locations
                         </p>
                     </Link>
                     
@@ -25,9 +25,9 @@ const Home = () => {
                         to="/parts" 
                         className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow"
                     >
-                        <h2 className="text-2xl font-bold mb-4">Manage Parts</h2>
+                        <h2 className="text-2xl font-bold mb-4">View Parts</h2>
                         <p className="text-gray-600">
-                            Add and track parts in your inventory
+                            Manage parts in your inventory
                         </p>
                     </Link>
                 </div>
