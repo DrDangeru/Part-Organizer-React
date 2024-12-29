@@ -1,6 +1,6 @@
 import { getLocations, getParts } from './db.ts';
 
 export const dbService = {
-  locations : getLocations, 
+  locations: getLocations,
   parts: getParts,
 };

@@ -60,7 +60,8 @@
 }
 
 /* Form Elements */
-input, select {
+input,
+select {
   width: 100%;
   max-width: 400px;
   padding: 0.5rem;
@@ -70,7 +71,8 @@ input, select {
   background-color: cornsilk;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #62a0c9;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -105,24 +107,29 @@ button:hover {
     margin-left: 0;
     padding: 1rem;
   }
-  
+
   .sidebar-container {
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
   }
-  
+
   .sidebar-container.open {
     transform: translateX(0);
   }
-  
-  input, select {
+
+  input,
+  select {
     max-width: 100%;
   }
 }
 
 /* Utility Classes */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
 
 /* Alert Messages */
 .alert {

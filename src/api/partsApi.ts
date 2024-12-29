@@ -55,8 +55,8 @@ export const partsApi = {
     });
     return response.json();
   },
-  
-  async getByLocationByName( locationName : string): Promise<Location>  {
+
+  async getByLocationByName(locationName: string): Promise<Location> {
     const response = await fetch(`${API_BASE_URL}/locations/${locationName}`, {
       method: 'POST',
       headers: {
@@ -65,5 +65,5 @@ export const partsApi = {
       body: JSON.stringify(location),
     });
     return response.json() as unknown as Location;
-}
-}
+  },
+};

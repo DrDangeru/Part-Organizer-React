@@ -8,7 +8,7 @@ import {
   insertPart,
   getParts,
   getPartById,
-  getPartsByLocation
+  getPartsByLocation,
 } from './db.ts';
 
 const app = express();
@@ -22,10 +22,15 @@ app.use(bodyParser.json());
 app.post('/locations', async (req, res) => {
   const { locationName, container, row, position } = req.body;
   try {
-    const location = await insertLocation(locationName, container, row, position);
+    const location = await insertLocation(
+      locationName,
+      container,
+      row,
+      position
+    );
     res.json(location);
   } catch (error) {
-    res.status(500).json({ error: error});
+    res.status(500).json({ error: error });
   }
 });
 
@@ -72,16 +77,31 @@ app.get('/locations/:id/parts', async (req, res) => {
 
 // Routes for parts
 app.post('/parts', async (req, res) => {
-  const { partName, partDetails, locationName, container, row, position} = req.body;
-  console.log('Received part data:', { partName, partDetails, locationName, container, row, position });
-  
+  const { partName, partDetails, locationName, container, row, position } =
+    req.body;
+  console.log('Received part data:', {
+    partName,
+    partDetails,
+    locationName,
+    container,
+    row,
+    position,
+  });
+
   try {
-    const part = await insertPart(partName, partDetails, locationName, container, row, position);
+    const part = await insertPart(
+      partName,
+      partDetails,
+      locationName,
+      container,
+      row,
+      position
+    );
     console.log('Part inserted successfully:', part);
     res.json(part);
   } catch (error) {
     console.error('Error inserting part:', error);
-    res.status(500).json({ error: error ||'Error inserting part' });
+    res.status(500).json({ error: error || 'Error inserting part' });
   }
 });
 

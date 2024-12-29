@@ -36,8 +36,8 @@ export const LocationService = {
   getById: (id: number): Location | undefined => {
     const stmt = db.prepare(`SELECT * FROM locations WHERE id = ?`);
     const result = stmt.get(id);
-    return result  as unknown as Location || undefined;
-  }
+    return (result as unknown as Location) || undefined;
+  },
 };
 
 export const PartService = {
@@ -62,5 +62,5 @@ export const PartService = {
   getPartByLocation: (locationId: string): Part[] => {
     const stmt = db.prepare(`SELECT * FROM parts WHERE locationId = ?`);
     return stmt.all(locationId) as unknown as Part[];
-  }
+  },
 };
