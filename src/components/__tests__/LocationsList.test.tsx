@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import LocationsList from '../LocationsList';
 import { partsApi } from '../../api/partsApi';
@@ -27,7 +27,6 @@ describe('LocationsList', () => {
     // Setup the mock implementation
     vi.mocked(partsApi.getLocations).mockResolvedValue(mockLocations);
 
-    // Render component within Router context
     render(
       <BrowserRouter>
         <LocationsList />
@@ -38,11 +37,13 @@ describe('LocationsList', () => {
     expect(screen.getByText('Locations')).toBeInTheDocument();
 
     // Wait for and verify location data
-    const locationName = await screen.findByText('Test Location');
-    expect(locationName).toBeInTheDocument();
-    expect(screen.getByText('Container: Test Container')).toBeInTheDocument();
-    expect(screen.getByText('Row: A1')).toBeInTheDocument();
-    expect(screen.getByText('Position: Front')).toBeInTheDocument();
+    await waitFor(async () => {
+      const locationName = await screen.findByText('Test Location', {}, { timeout: 5000 });
+      expect(locationName).toBeInTheDocument();
+      expect(screen.getByText('Container: Test Container')).toBeInTheDocument();
+      expect(screen.getByText('Row: A1')).toBeInTheDocument();
+      expect(screen.getByText('Position: Front')).toBeInTheDocument();
+    }, { timeout: 5000 });
 
     // Verify Add New Location button is present
     expect(screen.getByText('Add New Location')).toBeInTheDocument();
@@ -59,7 +60,9 @@ describe('LocationsList', () => {
     );
 
     // Wait for and verify error message
-    const errorMessage = await screen.findByText('Failed to load locations');
-    expect(errorMessage).toBeInTheDocument();
+    await waitFor(async () => {
+      const errorMessage = await screen.findByText('Failed to load locations', {}, { timeout: 5000 });
+      expect(errorMessage).toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 });

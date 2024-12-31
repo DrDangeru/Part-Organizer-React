@@ -92,7 +92,7 @@ const PartsForm = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4 text-center">Add New Part</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
+      <form role="form" onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
         <div className="part-form text-center">
           <label
             htmlFor="partName"
