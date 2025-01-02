@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+//import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import LocationForm from '../LocationForm';
 import { partsApi, Location } from '../../api/partsApi';
@@ -61,18 +61,21 @@ describe('LocationForm', () => {
       expect(screen.getByText('Test Location')).toBeInTheDocument();
     });
 
-    // Get the form
+    // Get form and submit
     const form = screen.getByRole('form');
-
-    // Submit empty form
+    
+    // Submit the form
     await act(async () => {
       fireEvent.submit(form);
     });
 
-    // Check for validation message
-    const alert = await screen.findByText('Please fill in all required fields', {}, { timeout: 5000 });
-    expect(alert).toBeInTheDocument();
-    expect(alert.closest('div')).toHaveClass('bg-yellow-100');
+    // Wait for and check the validation message
+    await waitFor(() => {
+      const alert = screen.getByRole('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert).toHaveTextContent('Please fill all required fields');
+      expect(alert).toHaveClass('bg-yellow-100');
+    }, { timeout: 2000 });
   });
 
   it('successfully submits form with valid data', async () => {
@@ -106,10 +109,10 @@ describe('LocationForm', () => {
       fireEvent.change(screen.getByLabelText(/position/i), { target: { value: newLocation.position } });
     });
 
-    // Submit form
-    const form = screen.getByRole('form');
+    // Submit form using the submit button
+    const submitButton = screen.getByRole('button', { name: /add location/i });
     await act(async () => {
-      fireEvent.submit(form);
+      fireEvent.click(submitButton);
     });
 
     // Wait for API call
@@ -140,7 +143,7 @@ describe('LocationForm', () => {
 
     render(
       <BrowserRouter>
-        <LocationForm />
+        <LocationForm/>
       </BrowserRouter>
     );
 
@@ -157,10 +160,10 @@ describe('LocationForm', () => {
       fireEvent.change(screen.getByLabelText(/position/i), { target: { value: 'Back' } });
     });
 
-    // Submit form
-    const form = screen.getByRole('form');
+    // Submit form using the submit button
+    const submitButton = screen.getByRole('button', { name: /add location/i });
     await act(async () => {
-      fireEvent.submit(form);
+      fireEvent.click(submitButton);
     });
 
     // Check error message

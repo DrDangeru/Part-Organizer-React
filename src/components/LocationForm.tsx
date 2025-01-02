@@ -8,6 +8,7 @@ const LocationForm = () => {
   const [position, setPosition] = useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [locations, setLocations] = useState<Location[]>([]);
+  // const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     loadLocations();
@@ -15,9 +16,11 @@ const LocationForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted', { locationName, container, row, position });
 
     if (!locationName || !container || !row || !position) {
-      setAlertMessage('Please fill in all required fields');
+      console.log('Setting validation message');
+      setAlertMessage('Please fill all required fields');
       return;
     }
 
@@ -62,7 +65,16 @@ const LocationForm = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4 text-center">Add New Location</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
+      {alertMessage && (
+        <div 
+          data-testid="alert-message" 
+          className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded text-center max-w-lg mx-auto"
+          role="alert"
+        >
+          {alertMessage}
+        </div>
+      )}
+      <form role="form" onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
         <div className="location-form text-center">
           <label
             htmlFor="locationName"
@@ -153,12 +165,6 @@ const LocationForm = () => {
           </button>
         </div>
       </form>
-
-      {alertMessage && (
-        <div className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded text-center max-w-lg mx-auto">
-          {alertMessage}
-        </div>
-      )}
 
       <div className="mt-8">
         <h3 className="text-xl font-bold mb-4 text-center">Locations List</h3>
