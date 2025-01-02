@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { partsApi, Location } from '../api/partsApi';
+import useAlert from '../hooks/useAlert';
 
 const LocationForm = () => {
   const [locationName, setLocationName] = useState<string>('');
   const [container, setContainer] = useState<string>('');
   const [row, setRow] = useState<string>('');
   const [position, setPosition] = useState<string>('');
-  const [alertMessage, setAlertMessage] = useState<string>('');
+  const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
   const [locations, setLocations] = useState<Location[]>([]);
-  // const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const loadLocations = useCallback(async () => {
+    try {
+      const allLocations = await partsApi.getLocations();
+      setLocations(allLocations);
+    } catch (error) {
+      console.error('Error loading locations:', error);
+      setAlertMessage('Failed to load locations');
+    }
+  }, [setAlertMessage]);
 
   useEffect(() => {
     loadLocations();
-  }, []);
+  }, [loadLocations]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,23 +62,13 @@ const LocationForm = () => {
     }
   };
 
-  const loadLocations = async () => {
-    try {
-      const allLocations = await partsApi.getLocations();
-      setLocations(allLocations);
-    } catch (error) {
-      console.error('Error loading locations:', error);
-      setAlertMessage('Failed to load locations');
-    }
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4 text-center">Add New Location</h2>
       {alertMessage && (
         <div 
           data-testid="alert-message" 
-          className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded text-center max-w-lg mx-auto"
+          className="mt-4 p-4 bg-red-100 text-red-700 font-bold rounded text-center max-w-lg mx-auto"
           role="alert"
         >
           {alertMessage}
@@ -159,7 +159,9 @@ const LocationForm = () => {
         <div className="text-center">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="!bg-blue-500 hover:!bg-blue-700 !text-white
+             font-bold py-2 px-4 rounded focus:outline-none 
+             focus:shadow-outline"
           >
             Add Location
           </button>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { partsApi, Part, Location } from '../../src/api/partsApi';
+import useAlert from '../hooks/useAlert';
 
 const PartsForm = () => {
   const [partName, setPartName] = useState<string>('');
@@ -8,14 +9,34 @@ const PartsForm = () => {
   const [container, setContainer] = useState<string>('');
   const [row, setRow] = useState<string>('');
   const [position, setPosition] = useState<string>('');
-  const [alertMessage, setAlertMessage] = useState<string>('');
   const [parts, setParts] = useState<Part[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
+
+  const loadParts = useCallback(async () => {
+    try {
+      const allParts = await partsApi.getParts();
+      setParts(allParts);
+    } catch (error) {
+      console.error('Error loading parts:', error);
+      setAlertMessage('Failed to load parts');
+    }
+  }, [setAlertMessage]);
+
+  const loadLocations = useCallback(async () => {
+    try {
+      const allLocations = await partsApi.getLocations();
+      setLocations(allLocations);
+    } catch (error) {
+      console.error('Error loading locations:', error);
+      setAlertMessage('Failed to load locations');
+    }
+  }, [setAlertMessage]);
 
   useEffect(() => {
     loadParts();
     loadLocations();
-  }, []);
+  }, [loadParts, loadLocations]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,26 +77,6 @@ const PartsForm = () => {
           ? error.message
           : 'Failed to add part. Please try again.'
       );
-    }
-  };
-
-  const loadParts = async () => {
-    try {
-      const allParts = await partsApi.getParts();
-      setParts(allParts);
-    } catch (error) {
-      console.error('Error loading parts:', error);
-      setAlertMessage('Failed to load parts');
-    }
-  };
-
-  const loadLocations = async () => {
-    try {
-      const allLocations = await partsApi.getLocations();
-      setLocations(allLocations);
-    } catch (error) {
-      console.error('Error loading locations:', error);
-      setAlertMessage('Failed to load locations');
     }
   };
 
@@ -221,7 +222,11 @@ const PartsForm = () => {
       </form>
 
       {alertMessage && (
-        <div className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded text-center max-w-lg mx-auto">
+        <div 
+          data-testid="alert-message"
+          className="mt-4 p-4 bg-red-100 text-red-700 font-bold rounded text-center max-w-lg mx-auto"
+          role="alert"
+        >
           {alertMessage}
         </div>
       )}

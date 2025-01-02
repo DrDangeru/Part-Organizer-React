@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Location, partsApi } from '../api/partsApi';
+import useAlert from '../hooks/useAlert';
 
 const LocationsList = () => {
   const [locations, setLocations] = useState<Location[]>([]);
-  const [alertMessage, setAlertMessage] = useState<string>('');
+  const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
 
-  useEffect(() => {
-    loadLocations();
-  }, []);
-
-  const loadLocations = async () => {
+  const loadLocations = useCallback(async () => {
     try {
       const allLocations = await partsApi.getLocations();
       setLocations(allLocations);
@@ -18,7 +15,11 @@ const LocationsList = () => {
       console.error('Error loading locations:', error);
       setAlertMessage('Failed to load locations');
     }
-  };
+  }, [setAlertMessage]);
+
+  useEffect(() => {
+    loadLocations();
+  }, [loadLocations]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -26,14 +27,14 @@ const LocationsList = () => {
         <h2 className="text-2xl font-bold">Locations</h2>
         <Link
           to="/add-location"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          className="!bg-blue-500 hover:!bg-blue-700 !text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline inline-block no-underline"
         >
           Add New Location
         </Link>
       </div>
 
       {alertMessage && (
-        <div className="mt-4 p-4 bg-yellow-100 text-yellow-700 rounded text-center max-w-lg mx-auto mb-6">
+        <div className="mt-4 p-4 bg-red-100 text-red-700 font-bold rounded text-center max-w-lg mx-auto mb-6">
           {alertMessage}
         </div>
       )}

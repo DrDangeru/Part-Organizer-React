@@ -16,7 +16,7 @@ const Sidebar = () => {
         onClick={toggleSidebar}
       >
         <svg
-          className="h-4 w-4"
+          className="h-5 w-5"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -33,24 +33,29 @@ const Sidebar = () => {
       </button>
 
       {/* Sidebar */}
-      <div className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
+      <div
+        className={`sidebar-container ${
+          isCollapsed ? 'hidden' : 'block'
+        } md:block fixed md:static top-0 left-0 w-64 min-h-full bg-gray-100 border-r border-gray-200 z-40`}
+      >
         <div className="w-full h-full flex flex-col">
           {/* Logo/Title */}
-          <div className="p-4 border-b border-blue-500">
+          <div className="p-4 border-b border-gray-300">
             <h1 className="text-lg font-bold">Parts Manager</h1>
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 p-2">
-            <ul className="space-y-2">
-              <li>
+          <nav className="flex-1 flex flex-col h-full">
+            <ul className="flex flex-col h-full">
+              {/* Parts List */}
+              <li className="flex-1 flex">
                 <Link
-                  to="/"
-                  className="flex items-center p-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  to="/parts"
+                  className="flex items-center justify-start w-full p-1.5 hover:bg-blue-700 hover:text-white transition-colors text-sm"
                   onClick={() => setIsCollapsed(true)}
                 >
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="w-4 h-4 mr-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -58,21 +63,62 @@ const Sidebar = () => {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth="1"
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                      strokeWidth="2"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                     />
                   </svg>
-                  Home
+                  Parts List
                 </Link>
               </li>
-              <li>
+
+              {/* Add Part */}
+              <li className="flex-1 flex">
+                <Link
+                  to="/add-part"
+                  className="flex items-center justify-start w-full p-1.5 hover:bg-blue-700 hover:text-white transition-colors text-sm"
+                  onClick={() => setIsCollapsed(true)}
+                >
+                  <div className="flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                    <svg
+                      className="w-2 h-2 text-white bg-blue-500 rounded-full ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 4v8m4-4H8"
+                      />
+                    </svg>
+                  </div>
+                  Add Part
+                </Link>
+              </li>
+
+              {/* Locations List */}
+              <li className="flex-1 flex">
                 <Link
                   to="/locations"
-                  className="flex items-center p-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  className="flex items-center justify-start w-full p-1.5 hover:bg-blue-700 hover:text-white transition-colors text-sm"
                   onClick={() => setIsCollapsed(true)}
                 >
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="w-4 h-4 mr-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -90,73 +136,52 @@ const Sidebar = () => {
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  Locations
+                  Locations List
                 </Link>
               </li>
-              <li>
+
+              {/* Add Location */}
+              <li className="flex-1 flex">
                 <Link
                   to="/add-location"
-                  className="flex items-center p-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  className="flex items-center justify-start w-full p-1.5 hover:bg-blue-700 hover:text-white transition-colors text-sm"
                   onClick={() => setIsCollapsed(true)}
                 >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
+                  <div className="flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <svg
+                      className="w-2 h-2 text-white bg-blue-500 rounded-full ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 4v8m4-4H8"
+                      />
+                    </svg>
+                  </div>
                   Add Location
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/parts"
-                  className="flex items-center p-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                  onClick={() => setIsCollapsed(true)}
-                >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
-                  Parts
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/add-part"
-                  className="flex items-center p-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                  onClick={() => setIsCollapsed(true)}
-                >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Add Part
                 </Link>
               </li>
             </ul>
