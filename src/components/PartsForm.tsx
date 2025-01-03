@@ -232,21 +232,58 @@ const PartsForm = () => {
       )}
 
       <div className="mt-8">
-        <h3 className="text-xl font-bold mb-4 text-center">Parts List</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {parts.map(part => (
-            <div
-              key={part.id}
-              className="bg-white shadow rounded p-4 text-center"
-            >
-              <h4 className="font-bold">{part.partName}</h4>
-              {part.partDetails && <p>Details: {part.partDetails}</p>}
-              <p>Location: {part.locationName}</p>
-              <p>Container: {part.container}</p>
-              <p>Row: {part.row}</p>
-              <p>Position: {part.position}</p>
-            </div>
-          ))}
+        <h3 className="text-xl font-bold mb-4">Parts List</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Part Name</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Details</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Location</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Container</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Row</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              {parts.map((part, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.partName}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.partDetails}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.locationName}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.container}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.row}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.position}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-xl font-bold mb-4">Locations List</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Location Name</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Container</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Row</th>
+                <th className="py-8 px-12 border !border-gray-300 !border-solid">Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              {locations.map((location, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.locationName}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.container}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.row}</td>
+                  <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.position}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

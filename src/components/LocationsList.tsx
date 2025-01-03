@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Location, partsApi } from '../api/partsApi';
 import useAlert from '../hooks/useAlert';
@@ -6,6 +6,7 @@ import useAlert from '../hooks/useAlert';
 const LocationsList = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const loadLocations = useCallback(async () => {
     try {
@@ -20,6 +21,18 @@ const LocationsList = () => {
   useEffect(() => {
     loadLocations();
   }, [loadLocations]);
+
+  const filteredLocations = useMemo(() => {
+    if (!searchQuery) return locations;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    return locations.filter(location => 
+      location.locationName.toLowerCase().includes(lowerQuery) ||
+      location.container.toLowerCase().includes(lowerQuery) ||
+      location.row.toLowerCase().includes(lowerQuery) ||
+      location.position.toLowerCase().includes(lowerQuery)
+    );
+  }, [locations, searchQuery]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -39,18 +52,37 @@ const LocationsList = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {locations.map(location => (
-          <div
-            key={location.id}
-            className="bg-white shadow rounded p-4 text-center"
-          >
-            <h4 className="font-bold text-lg mb-2">{location.locationName}</h4>
-            <p className="text-gray-600">Container: {location.container}</p>
-            <p className="text-gray-600">Row: {location.row}</p>
-            <p className="text-gray-600">Position: {location.position}</p>
-          </div>
-        ))}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search locations..."
+          className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-red-500 focus:border-blue-500"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border-collapse">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">Location Name</th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">Container</th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">Row</th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">Position</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredLocations.map((location, index) => (
+              <tr key={location.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.locationName}</td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.container}</td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.row}</td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.position}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
