@@ -1,0 +1,71 @@
+.sidebarButton {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 10vh;
+  width: 16rem !important;
+  background-color: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  z-index: 150;
+  transition: all 0.34s ease-in-out;
+}
+
+.sidebarButton:hover {
+  background-color: #b91c1c; /* Tailwind red-700 */
+  color: white;
+}
+
+.sidebar {
+  position: fixed;
+  top: 10vh;
+  left: 0;
+  width: 16rem !important;
+  height: 90vh;
+  background-color: #f5eef4;
+  /* border-right: 1px solid #ce621b; */
+  z-index: 50;
+  padding: 0;
+  margin: 0;
+  transform: translateX(0);
+  transition: transform 0.44s ease-in-out;
+}
+
+.sidebarCollapsed {
+  transform: translateX(-100%);
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  background-color: #f3f4f6;
+  min-width: 16rem;
+}
+
+/* Icon specific styles */
+.sidebarIcon {
+  width: 16rem !important;
+  height: 16rem !important;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebarLink {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.35rem 1rem;
+  transition: all 0.2s ease-in-out;
+  font-size: 0.875rem;
+}
+
+.sidebarLink:hover {
+  background-color: #b91c1c;
+  color: white;
+}
