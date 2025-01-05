@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PartsIcon, AddIcon, LocationIcon } from './Icons';
+import { PartsIcon, LocationIcon, AddPartIcon, AddLocationIcon } from './Icons';
 import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
@@ -42,7 +42,7 @@ const Sidebar = () => {
                   className={styles.sidebarLink}
                   onClick={() => setIsCollapsed(true)}
                 >
-                  <AddIcon className={styles.sidebarIcon} />
+                  <AddPartIcon className={styles.sidebarIcon} />
                   Add Part
                 </Link>
               </li>
@@ -66,7 +66,7 @@ const Sidebar = () => {
                   className={styles.sidebarLink}
                   onClick={() => setIsCollapsed(true)}
                 >
-                  <AddIcon className={styles.sidebarIcon} />
+                  <AddLocationIcon className={styles.sidebarIcon} />
                   Add Location
                 </Link>
               </li>
