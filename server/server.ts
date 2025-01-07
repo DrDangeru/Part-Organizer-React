@@ -83,7 +83,17 @@ app.get('/api/me', (req: Request, res: Response) => {
 });
 
 // Routes for locations
-app.post('/locations', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/locations', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const locations = await getLocations();
+    res.json(locations);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+app.post('/api/locations', requireAuth, async (req: Request, res: Response) => {
   const { locationName, container, row, position } = req.body;
   try {
     const location = await insertLocation(
@@ -93,19 +103,6 @@ app.post('/locations', requireAuth, async (req: Request, res: Response) => {
       position
     );
     res.json(location);
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    res.status(500).json({ error: errorMessage });
-  }
-});
-
-app.get('/locations', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const locations = await getLocations();
-    if (!locations) {
-      return res.status(404).json({ error: 'No locations found' });
-    }
-    res.json(locations);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     res.status(500).json({ error: errorMessage });
@@ -142,7 +139,7 @@ app.get('/locations/:id/parts', requireAuth, async (req: Request, res: Response)
 });
 
 // Routes for parts
-app.post('/parts', requireAuth, async (req: Request, res: Response) => {
+app.post('/api/parts', requireAuth, async (req: Request, res: Response) => {
   const { partName, partDetails, locationName, container, row, position } =
     req.body;
   console.log('Received part data:', {
@@ -153,7 +150,6 @@ app.post('/parts', requireAuth, async (req: Request, res: Response) => {
     row,
     position,
   });
-
   try {
     const part = await insertPart(
       partName,
@@ -163,7 +159,6 @@ app.post('/parts', requireAuth, async (req: Request, res: Response) => {
       row,
       position
     );
-    console.log('Part inserted successfully:', part);
     res.json(part);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
@@ -171,10 +166,9 @@ app.post('/parts', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/parts', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/parts', requireAuth, async (req: Request, res: Response) => {
   try {
     const parts = await getParts();
-    console.log('Retrieved parts:', parts);
     res.json(parts);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
@@ -182,23 +176,25 @@ app.get('/parts', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/parts/:id', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/parts/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const part = await getPartById(req.params.id as unknown as number);
-    if (part) {
-      res.json(part);
-    } else {
-      res.status(404).json({ error: 'Part not found' });
+    const part = await getPartById(parseInt(req.params.id));
+    if (!part) {
+      return res.status(404).json({ error: 'Part not found' });
     }
+    res.json(part);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     res.status(500).json({ error: errorMessage });
   }
 });
 
-app.get('/parts/location/:locationId', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/parts/location/:locationName', requireAuth, async (req: Request, res: Response) => {
   try {
-    const parts = await getPartsByLocation(req.params.locationId);
+    const parts = await getPartsByLocation(req.params.locationName);
+    if (!parts || parts.length === 0) {
+      return res.status(404).json({ error: 'No parts found for this location' });
+    }
     res.json(parts);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';

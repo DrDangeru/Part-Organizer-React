@@ -16,14 +16,14 @@ const Home = () => {
             className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow"
           >
             <h2 className="text-2xl font-bold mb-4">Manage Locations</h2>
-            <p className="text-gray-600">View Locations</p>
+            {/* <p className="text-gray-600">View Locations</p> */}
           </Link>
 
           <Link
             to="/parts"
             className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow"
           >
-            <h2 className="text-2xl font-bold mb-4">View Parts</h2>
+            {/* <h2 className="text-2xl font-bold mb-4">View Parts</h2> */}
             <p className="text-gray-600">Manage parts in your inventory</p>
           </Link>
         </div>
