@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import session from 'express-session';
 import {
   insertLocation,
   getLocations,
@@ -10,12 +9,15 @@ import {
   getParts,
   getPartById,
   getPartsByLocation,
-} from './db.ts';
+} from './db';
 import { validateUser, User } from './auth';
+import { generateToken, verifyToken, extractTokenFromHeader } from './jwt';
 
-declare module 'express-session' {
-  interface SessionData {
-    user: User;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
   }
 }
 
@@ -24,27 +26,26 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // React dev server replace when needed
+  origin: 'http://localhost:5173',
   credentials: true
 }));
 app.use(bodyParser.json());
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 2 * 60 * 60 * 1000 // 2 hours
-  }
-}));
 
 // Auth middleware
-const requireAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
+const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = extractTokenFromHeader(req.headers.authorization);
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const user = await verifyToken(token);
+    req.user = user;
+    next();
+  } catch (error) {
+    console.log(error)
+    return res.status(401).json({ error: 'Invalid token' });
   }
-  next();
 };
 
 // Auth routes
@@ -53,8 +54,8 @@ app.post('/api/login', async (req: Request, res: Response) => {
   try {
     const user = await validateUser(username, password);
     if (user) {
-      req.session.user = user;
-      res.json({ user });
+      const token = generateToken(user);
+      res.json({ token, user });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -64,26 +65,23 @@ app.post('/api/login', async (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/logout', (req: Request, res: Response) => {
-  req.session.destroy((err) => {
-    if (err) {
-      res.status(500).json({ error: 'Error logging out' });
-    } else {
-      res.json({ message: 'Logged out successfully' });
-    }
-  });
-});
-
-app.get('/api/me', (req: Request, res: Response) => {
-  if (req.session.user) {
-    res.json({ user: req.session.user });
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
-  }
+app.get('/api/me', requireAuth, (req: Request, res: Response) => {
+  res.json({ user: req.user });
 });
 
 // Routes for locations
-app.get('/api/locations', requireAuth, async (req: Request, res: Response) => {
+app.post('/api/locations', requireAuth, async (req: Request, res: Response) => {
+  const { name, description } = req.body;
+  try {
+    const location = await insertLocation(name, description);
+    res.json(location);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+app.get('/api/locations', requireAuth, async (_req: Request, res: Response) => {
   try {
     const locations = await getLocations();
     res.json(locations);
@@ -93,26 +91,14 @@ app.get('/api/locations', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/locations', requireAuth, async (req: Request, res: Response) => {
-  const { locationName, container, row, position } = req.body;
+app.get('/api/locations/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const location = await insertLocation(
-      locationName,
-      container,
-      row,
-      position
-    );
-    res.json(location);
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    res.status(500).json({ error: errorMessage });
-  }
-});
+    const locationId = parseInt(req.params.id);
+    if (isNaN(locationId)) {
+      return res.status(400).json({ error: 'Invalid location ID' });
+    }
 
-// Route to get location by ID
-app.get('/locations/:id', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const location = await getLocationById(req.params.id as unknown as number);
+    const location = await getLocationById(locationId);
     if (!location) {
       return res.status(404).json({ error: 'Location not found' });
     }
@@ -126,12 +112,16 @@ app.get('/locations/:id', requireAuth, async (req: Request, res: Response) => {
 // Route to get parts for a specific location
 app.get('/locations/:id/parts', requireAuth, async (req: Request, res: Response) => {
   try {
-    const parts = await getPartsByLocation(req.params.id);
-    if (parts) {
-      res.json(parts);
-    } else {
-      res.status(404).json({ error: 'No parts found for this location' });
+    const locationId = parseInt(req.params.id);
+    if (isNaN(locationId)) {
+      return res.status(400).json({ error: 'Invalid location ID' });
     }
+
+    const parts = await getPartsByLocation(locationId);
+    if (!parts || parts.length === 0) {
+      return res.status(404).json({ error: 'No parts found for this location' });
+    }
+    res.json(parts);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     res.status(500).json({ error: errorMessage });
@@ -140,16 +130,12 @@ app.get('/locations/:id/parts', requireAuth, async (req: Request, res: Response)
 
 // Routes for parts
 app.post('/api/parts', requireAuth, async (req: Request, res: Response) => {
-  const { partName, partDetails, locationName, container, row, position } =
-    req.body;
-  console.log('Received part data:', {
-    partName,
-    partDetails,
-    locationName,
-    container,
-    row,
-    position,
-  });
+  const { partName, partDetails, locationName, container, row, position } = req.body;
+  
+  if (!partName || !locationName) {
+    return res.status(400).json({ error: 'Part name and location name are required' });
+  }
+
   try {
     const part = await insertPart(
       partName,
@@ -166,7 +152,7 @@ app.post('/api/parts', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/parts', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/parts', requireAuth, async (_req: Request, res: Response) => {
   try {
     const parts = await getParts();
     res.json(parts);
@@ -178,7 +164,12 @@ app.get('/api/parts', requireAuth, async (req: Request, res: Response) => {
 
 app.get('/api/parts/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const part = await getPartById(parseInt(req.params.id));
+    const partId = parseInt(req.params.id);
+    if (isNaN(partId)) {
+      return res.status(400).json({ error: 'Invalid part ID' });
+    }
+
+    const part = await getPartById(partId);
     if (!part) {
       return res.status(404).json({ error: 'Part not found' });
     }
@@ -191,7 +182,12 @@ app.get('/api/parts/:id', requireAuth, async (req: Request, res: Response) => {
 
 app.get('/api/parts/location/:locationName', requireAuth, async (req: Request, res: Response) => {
   try {
-    const parts = await getPartsByLocation(req.params.locationName);
+    const { locationName } = req.params;
+    if (!locationName) {
+      return res.status(400).json({ error: 'Location name is required' });
+    }
+
+    const parts = await getPartsByLocation(locationName);
     if (!parts || parts.length === 0) {
       return res.status(404).json({ error: 'No parts found for this location' });
     }

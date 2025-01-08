@@ -15,8 +15,12 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.7.0",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "node-js": "^1.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
