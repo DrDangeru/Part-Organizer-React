@@ -8,8 +8,9 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  getToken: () => string | null;
   login: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

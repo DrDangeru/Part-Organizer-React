@@ -28,7 +28,10 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/locations" element={<LocationsList />} />
                         <Route path="/parts" element={<PartsList />} />
-                        <Route path="/add-location" element={<LocationForm />} />
+                        <Route
+                          path="/add-location"
+                          element={<LocationForm />}
+                        />
                         <Route path="/add-part" element={<PartsForm />} />
                       </Routes>
                     </div>

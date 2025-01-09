@@ -31,14 +31,17 @@ db.exec(
   }
 );
 
-export async function createUser(username: string, password: string): Promise<User | null> {
+export async function createUser(
+  username: string,
+  password: string
+): Promise<User | null> {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     return new Promise((resolve, reject) => {
       db.run(
         'INSERT INTO users (username, password) VALUES (?, ?)',
         [username, hashedPassword],
-        function(err) {
+        function (err) {
           if (err) {
             reject(err);
           } else {
@@ -53,7 +56,10 @@ export async function createUser(username: string, password: string): Promise<Us
   }
 }
 
-export async function validateUser(username: string, password: string): Promise<User | null> {
+export async function validateUser(
+  username: string,
+  password: string
+): Promise<User | null> {
   return new Promise((resolve, reject) => {
     db.get<DBUser>(
       'SELECT * FROM users WHERE username = ?',
@@ -66,10 +72,10 @@ export async function validateUser(username: string, password: string): Promise<
         } else {
           const isValid = await bcrypt.compare(password, user.password);
           if (isValid) {
-         // Remove password and keep other properties
-         const { password: _password, ...userWithoutPassword } = user;
-         void _password; // Suppress unused variable warning
-         resolve(userWithoutPassword);
+            // Remove password and keep other properties
+            const { password: _password, ...userWithoutPassword } = user;
+            void _password; // Suppress unused variable warning
+            resolve(userWithoutPassword);
           } else {
             resolve(null);
           }

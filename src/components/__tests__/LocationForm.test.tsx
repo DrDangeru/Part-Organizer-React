@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 //import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import LocationForm from '../LocationForm';
@@ -19,13 +25,13 @@ describe('LocationForm', () => {
     locationName: 'Test Location',
     container: 'Test Container',
     row: 'A1',
-    position: 'Front'
+    position: 'Front',
   };
 
   beforeEach(() => {
     // Reset all mocks before each test
     vi.resetAllMocks();
-    
+
     // Setup default mock implementations
     vi.mocked(partsApi.getLocations).mockResolvedValue([mockLocation]);
   });
@@ -63,19 +69,22 @@ describe('LocationForm', () => {
 
     // Get form and submit
     const form = screen.getByRole('form');
-    
+
     // Submit the form
     await act(async () => {
       fireEvent.submit(form);
     });
 
     // Wait for and check the validation message
-    await waitFor(() => {
-      const alert = screen.getByRole('alert');
-      expect(alert).toBeInTheDocument();
-      expect(alert).toHaveTextContent('Please fill all required fields');
-      expect(alert).toHaveClass('bg-yellow-100');
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        const alert = screen.getByRole('alert');
+        expect(alert).toBeInTheDocument();
+        expect(alert).toHaveTextContent('Please fill all required fields');
+        expect(alert).toHaveClass('bg-yellow-100');
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('successfully submits form with valid data', async () => {
@@ -85,10 +94,13 @@ describe('LocationForm', () => {
       locationName: 'New Test Location',
       container: 'New Container',
       row: 'B2',
-      position: 'Back'
+      position: 'Back',
     };
     vi.mocked(partsApi.addLocation).mockResolvedValue(newLocation);
-    vi.mocked(partsApi.getLocations).mockResolvedValue([mockLocation, newLocation]);
+    vi.mocked(partsApi.getLocations).mockResolvedValue([
+      mockLocation,
+      newLocation,
+    ]);
 
     render(
       <BrowserRouter>
@@ -103,10 +115,18 @@ describe('LocationForm', () => {
 
     // Fill in form fields
     await act(async () => {
-      fireEvent.change(screen.getByLabelText(/location name/i), { target: { value: newLocation.locationName } });
-      fireEvent.change(screen.getByLabelText(/container/i), { target: { value: newLocation.container } });
-      fireEvent.change(screen.getByLabelText(/row/i), { target: { value: newLocation.row } });
-      fireEvent.change(screen.getByLabelText(/position/i), { target: { value: newLocation.position } });
+      fireEvent.change(screen.getByLabelText(/location name/i), {
+        target: { value: newLocation.locationName },
+      });
+      fireEvent.change(screen.getByLabelText(/container/i), {
+        target: { value: newLocation.container },
+      });
+      fireEvent.change(screen.getByLabelText(/row/i), {
+        target: { value: newLocation.row },
+      });
+      fireEvent.change(screen.getByLabelText(/position/i), {
+        target: { value: newLocation.position },
+      });
     });
 
     // Submit form using the submit button
@@ -116,17 +136,24 @@ describe('LocationForm', () => {
     });
 
     // Wait for API call
-    await waitFor(() => {
-      expect(partsApi.addLocation).toHaveBeenCalledWith({
-        locationName: newLocation.locationName,
-        container: newLocation.container,
-        row: newLocation.row,
-        position: newLocation.position,
-      });
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(partsApi.addLocation).toHaveBeenCalledWith({
+          locationName: newLocation.locationName,
+          container: newLocation.container,
+          row: newLocation.row,
+          position: newLocation.position,
+        });
+      },
+      { timeout: 5000 }
+    );
 
     // Check success message
-    const alert = await screen.findByText('Location added successfully!', {}, { timeout: 5000 });
+    const alert = await screen.findByText(
+      'Location added successfully!',
+      {},
+      { timeout: 5000 }
+    );
     expect(alert).toBeInTheDocument();
     expect(alert.closest('div')).toHaveClass('bg-yellow-100');
 
@@ -143,7 +170,7 @@ describe('LocationForm', () => {
 
     render(
       <BrowserRouter>
-        <LocationForm/>
+        <LocationForm />
       </BrowserRouter>
     );
 
@@ -154,10 +181,18 @@ describe('LocationForm', () => {
 
     // Fill in form fields
     await act(async () => {
-      fireEvent.change(screen.getByLabelText(/location name/i), { target: { value: 'New Location' } });
-      fireEvent.change(screen.getByLabelText(/container/i), { target: { value: 'New Container' } });
-      fireEvent.change(screen.getByLabelText(/row/i), { target: { value: 'B2' } });
-      fireEvent.change(screen.getByLabelText(/position/i), { target: { value: 'Back' } });
+      fireEvent.change(screen.getByLabelText(/location name/i), {
+        target: { value: 'New Location' },
+      });
+      fireEvent.change(screen.getByLabelText(/container/i), {
+        target: { value: 'New Container' },
+      });
+      fireEvent.change(screen.getByLabelText(/row/i), {
+        target: { value: 'B2' },
+      });
+      fireEvent.change(screen.getByLabelText(/position/i), {
+        target: { value: 'Back' },
+      });
     });
 
     // Submit form using the submit button

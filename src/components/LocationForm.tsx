@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { partsApi, Location } from '../api/partsApi';
+import { usePartsApi, Location } from '../api/partsApi';
 import useAlert from '../hooks/useAlert';
 
 const LocationForm = () => {
@@ -9,16 +9,17 @@ const LocationForm = () => {
   const [position, setPosition] = useState<string>('');
   const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
   const [locations, setLocations] = useState<Location[]>([]);
+  const api = usePartsApi();
 
   const loadLocations = useCallback(async () => {
     try {
-      const allLocations = await partsApi.getLocations();
+      const allLocations = await api.getLocations();
       setLocations(allLocations);
     } catch (error) {
       console.error('Error loading locations:', error);
       setAlertMessage('Failed to load locations');
     }
-  }, [setAlertMessage]);
+  }, [api, setAlertMessage]);
 
   useEffect(() => {
     loadLocations();
@@ -43,7 +44,7 @@ const LocationForm = () => {
       };
 
       console.log('Submitting location:', newLocation);
-      await partsApi.addLocation(newLocation);
+      await api.addLocation(newLocation);
       await loadLocations();
       setAlertMessage('Location added successfully!');
 
@@ -66,15 +67,19 @@ const LocationForm = () => {
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4 text-center">Add New Location</h2>
       {alertMessage && (
-        <div 
-          data-testid="alert-message" 
+        <div
+          data-testid="alert-message"
           className="mt-4 p-4 bg-red-100 text-red-700 font-bold rounded text-center max-w-lg mx-auto"
           role="alert"
         >
           {alertMessage}
         </div>
       )}
-      <form role="form" onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
+      <form
+        role="form"
+        onSubmit={handleSubmit}
+        className="space-y-4 max-w-lg mx-auto"
+      >
         <div className="location-form text-center">
           <label
             htmlFor="locationName"

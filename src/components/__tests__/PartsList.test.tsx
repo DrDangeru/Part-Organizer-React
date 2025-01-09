@@ -39,15 +39,24 @@ describe('PartsList', () => {
     expect(screen.getByText('Parts Inventory')).toBeInTheDocument();
 
     // Wait for and verify part data
-    await waitFor(async () => {
-      const partName = await screen.findByText('Test Part', {}, { timeout: 5000 });
-      expect(partName).toBeInTheDocument();
-      expect(screen.getByText('Details: Test Details')).toBeInTheDocument();
-      expect(screen.getByText('Location: Test Location')).toBeInTheDocument();
-      expect(screen.getByText('Container: Test Container')).toBeInTheDocument();
-      expect(screen.getByText('Row: A1')).toBeInTheDocument();
-      expect(screen.getByText('Position: Front')).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      async () => {
+        const partName = await screen.findByText(
+          'Test Part',
+          {},
+          { timeout: 5000 }
+        );
+        expect(partName).toBeInTheDocument();
+        expect(screen.getByText('Details: Test Details')).toBeInTheDocument();
+        expect(screen.getByText('Location: Test Location')).toBeInTheDocument();
+        expect(
+          screen.getByText('Container: Test Container')
+        ).toBeInTheDocument();
+        expect(screen.getByText('Row: A1')).toBeInTheDocument();
+        expect(screen.getByText('Position: Front')).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
     // Verify Add New Part button is present
     expect(screen.getByText('Add New Part')).toBeInTheDocument();
@@ -64,10 +73,17 @@ describe('PartsList', () => {
     );
 
     // Wait for and verify error message
-    await waitFor(async () => {
-      const errorMessage = await screen.findByText('Failed to load parts', {}, { timeout: 5000 });
-      expect(errorMessage).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      async () => {
+        const errorMessage = await screen.findByText(
+          'Failed to load parts',
+          {},
+          { timeout: 5000 }
+        );
+        expect(errorMessage).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 
   it('renders empty state when no parts exist', async () => {
@@ -80,12 +96,15 @@ describe('PartsList', () => {
       </BrowserRouter>
     );
 
-    await waitFor(() => {
-      // Verify the heading is still present
-      expect(screen.getByText('Parts Inventory')).toBeInTheDocument();
-      
-      // Verify Add New Part button is present
-      expect(screen.getByText('Add New Part')).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        // Verify the heading is still present
+        expect(screen.getByText('Parts Inventory')).toBeInTheDocument();
+
+        // Verify Add New Part button is present
+        expect(screen.getByText('Add New Part')).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 });

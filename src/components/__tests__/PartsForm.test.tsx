@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 //import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import PartsForm from '../PartsForm';
@@ -20,13 +26,13 @@ describe('PartsForm', () => {
     locationName: 'Test Location',
     container: 'Test Container',
     row: 'A1',
-    position: 'Front'
+    position: 'Front',
   };
 
   beforeEach(() => {
     // Reset all mocks before each test
     vi.resetAllMocks();
-    
+
     // Setup default mock implementations
     vi.mocked(partsApi.getLocations).mockResolvedValue([mockLocation]);
     vi.mocked(partsApi.getParts).mockResolvedValue([]);
@@ -74,7 +80,11 @@ describe('PartsForm', () => {
     });
 
     // Check for validation message
-    const alert = await screen.findByText('Please fill in all required fields (including location)', {}, { timeout: 5000 });
+    const alert = await screen.findByText(
+      'Please fill in all required fields (including location)',
+      {},
+      { timeout: 5000 }
+    );
     expect(alert).toBeInTheDocument();
     expect(alert.closest('div')).toHaveClass('bg-yellow-100');
   });
@@ -88,7 +98,7 @@ describe('PartsForm', () => {
       locationName: mockLocation.locationName,
       container: mockLocation.container,
       row: mockLocation.row,
-      position: mockLocation.position
+      position: mockLocation.position,
     };
     vi.mocked(partsApi.addPart).mockResolvedValue(mockPart);
     vi.mocked(partsApi.getParts).mockResolvedValue([mockPart]);
@@ -107,17 +117,29 @@ describe('PartsForm', () => {
     // Fill in form fields
     await act(async () => {
       // Fill in part name and details
-      fireEvent.change(screen.getByLabelText(/part name/i), { target: { value: mockPart.partName } });
-      fireEvent.change(screen.getByLabelText(/part details/i), { target: { value: mockPart.partDetails } });
-      
+      fireEvent.change(screen.getByLabelText(/part name/i), {
+        target: { value: mockPart.partName },
+      });
+      fireEvent.change(screen.getByLabelText(/part details/i), {
+        target: { value: mockPart.partDetails },
+      });
+
       // Select location from dropdown
       const locationSelect = screen.getByLabelText(/location/i);
-      fireEvent.change(locationSelect, { target: { value: mockPart.locationName } });
-      
+      fireEvent.change(locationSelect, {
+        target: { value: mockPart.locationName },
+      });
+
       // Fill in container, row, and position
-      fireEvent.change(screen.getByLabelText(/container/i), { target: { value: mockPart.container } });
-      fireEvent.change(screen.getByLabelText(/row/i), { target: { value: mockPart.row } });
-      fireEvent.change(screen.getByLabelText(/position/i), { target: { value: mockPart.position } });
+      fireEvent.change(screen.getByLabelText(/container/i), {
+        target: { value: mockPart.container },
+      });
+      fireEvent.change(screen.getByLabelText(/row/i), {
+        target: { value: mockPart.row },
+      });
+      fireEvent.change(screen.getByLabelText(/position/i), {
+        target: { value: mockPart.position },
+      });
     });
 
     // Submit form
@@ -127,19 +149,26 @@ describe('PartsForm', () => {
     });
 
     // Wait for API call
-    await waitFor(() => {
-      expect(partsApi.addPart).toHaveBeenCalledWith({
-        partName: mockPart.partName,
-        partDetails: mockPart.partDetails,
-        locationName: mockPart.locationName,
-        container: mockPart.container,
-        row: mockPart.row,
-        position: mockPart.position,
-      });
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(partsApi.addPart).toHaveBeenCalledWith({
+          partName: mockPart.partName,
+          partDetails: mockPart.partDetails,
+          locationName: mockPart.locationName,
+          container: mockPart.container,
+          row: mockPart.row,
+          position: mockPart.position,
+        });
+      },
+      { timeout: 5000 }
+    );
 
     // Check success message
-    const alert = await screen.findByText('Part added successfully!', {}, { timeout: 5000 });
+    const alert = await screen.findByText(
+      'Part added successfully!',
+      {},
+      { timeout: 5000 }
+    );
     expect(alert).toBeInTheDocument();
     expect(alert.closest('div')).toHaveClass('bg-yellow-100');
   });
@@ -162,15 +191,25 @@ describe('PartsForm', () => {
 
     // Fill in form fields
     await act(async () => {
-      fireEvent.change(screen.getByLabelText(/part name/i), { target: { value: 'Test Part' } });
-      
+      fireEvent.change(screen.getByLabelText(/part name/i), {
+        target: { value: 'Test Part' },
+      });
+
       // Select location from dropdown
       const locationSelect = screen.getByLabelText(/location/i);
-      fireEvent.change(locationSelect, { target: { value: mockLocation.locationName } });
-      
-      fireEvent.change(screen.getByLabelText(/container/i), { target: { value: mockLocation.container } });
-      fireEvent.change(screen.getByLabelText(/row/i), { target: { value: mockLocation.row } });
-      fireEvent.change(screen.getByLabelText(/position/i), { target: { value: mockLocation.position } });
+      fireEvent.change(locationSelect, {
+        target: { value: mockLocation.locationName },
+      });
+
+      fireEvent.change(screen.getByLabelText(/container/i), {
+        target: { value: mockLocation.container },
+      });
+      fireEvent.change(screen.getByLabelText(/row/i), {
+        target: { value: mockLocation.row },
+      });
+      fireEvent.change(screen.getByLabelText(/position/i), {
+        target: { value: mockLocation.position },
+      });
     });
 
     // Submit form

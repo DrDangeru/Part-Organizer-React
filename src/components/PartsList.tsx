@@ -1,37 +1,48 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Part, partsApi } from '../api/partsApi';
+import { Part, usePartsApi } from '../api/partsApi';
+import useAlert from '../hooks/useAlert';
 
 const PartsList = () => {
   const [parts, setParts] = useState<Part[]>([]);
-  const [alertMessage, setAlertMessage] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { alertMessage, setAlertMessage } = useAlert(6000);
+  const api = usePartsApi();
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    loadParts();
-  }, []);
+    const fetchParts = async () => {
+      try {
+        const data = await api.getParts();
+        setParts(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching parts:', err);
+        setError('Failed to fetch parts ${err}');
+        setAlertMessage('Failed to fetch parts with error ${err}');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const loadParts = async () => {
-    try {
-      const allParts = await partsApi.getParts();
-      setParts(allParts);
-    } catch (error) {
-      console.error('Error loading parts:', error);
-      setAlertMessage('Failed to load parts');
-    }
-  };
+    fetchParts();
+  }, [api, setAlertMessage, error]);
+
   //Search with memo
-  const filteredParts = useMemo(() => {
+  const filteredParts = React.useMemo(() => {
     if (!searchQuery) return parts;
-    
+
     const lowerQuery = searchQuery.toLowerCase();
-    return parts.filter(part => 
-      part.partName.toLowerCase().includes(lowerQuery) ||
-      (part.partDetails && part.partDetails.toLowerCase().includes(lowerQuery)) ||
-      part.locationName.toLowerCase().includes(lowerQuery) ||
-      part.container.toLowerCase().includes(lowerQuery) ||
-      part.row.toLowerCase().includes(lowerQuery) ||
-      part.position.toLowerCase().includes(lowerQuery)
+    return parts.filter(
+      part =>
+        part.partName.toLowerCase().includes(lowerQuery) ||
+        (part.partDetails &&
+          part.partDetails.toLowerCase().includes(lowerQuery)) ||
+        part.locationName.toLowerCase().includes(lowerQuery) ||
+        part.container.toLowerCase().includes(lowerQuery) ||
+        part.row.toLowerCase().includes(lowerQuery) ||
+        part.position.toLowerCase().includes(lowerQuery)
     );
   }, [parts, searchQuery]);
 
@@ -59,7 +70,7 @@ const PartsList = () => {
           placeholder="Search parts..."
           className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-blue-500 focus:border-blue-500"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
         />
       </div>
 
@@ -67,23 +78,50 @@ const PartsList = () => {
         <table className="min-w-full bg-white border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Part Name</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Details</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Location</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Container</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Row</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Position</th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Part Name
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Details
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Location
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Container
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Row
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Position
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredParts.map((part, index) => (
-              <tr key={part.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.partName}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.partDetails || '-'}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.locationName}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.container}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.row}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{part.position}</td>
+              <tr
+                key={part.id}
+                className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+              >
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {part.partName}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {part.partDetails || '-'}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {part.locationName}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {part.container}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {part.row}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {part.position}
+                </td>
               </tr>
             ))}
           </tbody>

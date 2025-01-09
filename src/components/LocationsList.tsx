@@ -1,38 +1,40 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import  { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Location, partsApi } from '../api/partsApi';
+import { Location, usePartsApi } from '../api/partsApi';
 import useAlert from '../hooks/useAlert';
 
 const LocationsList = () => {
   const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  const loadLocations = useCallback(async () => {
-    try {
-      const allLocations = await partsApi.getLocations();
-      setLocations(allLocations);
-    } catch (error) {
-      console.error('Error loading locations:', error);
-      setAlertMessage('Failed to load locations');
-    }
-  }, [setAlertMessage]);
+  const api = usePartsApi();
 
   useEffect(() => {
-    loadLocations();
-  }, [loadLocations]);
+    const fetchLocations = async () => {
+      try {
+        const data = await api.getLocations();
+        setLocations(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+        setError('Failed to fetch locations');
+        setAlertMessage(`Failed to fetch locations ${error}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLocations();
+  }, [api, setAlertMessage, error]);
 
-  const filteredLocations = useMemo(() => {
-    if (!searchQuery) return locations;
-    
-    const lowerQuery = searchQuery.toLowerCase();
-    return locations.filter(location => 
-      location.locationName.toLowerCase().includes(lowerQuery) ||
-      location.container.toLowerCase().includes(lowerQuery) ||
-      location.row.toLowerCase().includes(lowerQuery) ||
-      location.position.toLowerCase().includes(lowerQuery)
-    );
-  }, [locations, searchQuery]);
+  const filteredLocations = locations.filter(
+    location =>
+      location.locationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.container.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.row.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.position.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -58,7 +60,7 @@ const LocationsList = () => {
           placeholder="Search locations..."
           className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-red-500 focus:border-blue-500"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
         />
       </div>
 
@@ -66,19 +68,38 @@ const LocationsList = () => {
         <table className="min-w-full bg-white border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Location Name</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Container</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Row</th>
-              <th className="py-8 px-12 border !border-gray-300 !border-solid">Position</th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Location Name
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Container
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Row
+              </th>
+              <th className="py-8 px-12 border !border-gray-300 !border-solid">
+                Position
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredLocations.map((location, index) => (
-              <tr key={location.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.locationName}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.container}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.row}</td>
-                <td className="py-4 px-12 border !border-gray-300 !border-solid">{location.position}</td>
+              <tr
+                key={location.id}
+                className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+              >
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {location.locationName}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {location.container}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {location.row}
+                </td>
+                <td className="py-4 px-12 border !border-gray-300 !border-solid">
+                  {location.position}
+                </td>
               </tr>
             ))}
           </tbody>

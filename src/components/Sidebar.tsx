@@ -18,7 +18,9 @@ const Sidebar = () => {
       </button>
 
       {/* Sidebar */}
-      <div className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''}`}>
+      <div
+        className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''}`}
+      >
         <div className="flex flex-col h-full w-full p-0 m-0">
           {/* Navigation Links */}
           <nav className="flex-1 overflow-y-auto w-full">
