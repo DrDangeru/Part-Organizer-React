@@ -5,7 +5,7 @@ import useAlert from '../hooks/useAlert';
 
 const PartsList = () => {
   const [parts, setParts] = useState<Part[]>([]);
-  const [loading, setLoading] = useState(true);
+  //const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { alertMessage, setAlertMessage } = useAlert(6000);
   const api = usePartsApi();
@@ -22,7 +22,8 @@ const PartsList = () => {
         setError('Failed to fetch parts ${err}');
         setAlertMessage('Failed to fetch parts with error ${err}');
       } finally {
-        setLoading(false);
+        setAlertMessage('Parts Loaded!');
+        //setLoading(false);
       }
     };
 

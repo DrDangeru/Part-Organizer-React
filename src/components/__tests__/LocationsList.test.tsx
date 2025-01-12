@@ -19,10 +19,12 @@ vi.mock('../../api/partsApi', () => ({
   }),
 }));
 
+// Add auth mock
 vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({
-    user: { id: 1, username: 'test' },
+    user: { id: 1, username: 'testuser' },
     getToken: () => 'test-token',
+    isLoading: false,
   }),
 }));
 

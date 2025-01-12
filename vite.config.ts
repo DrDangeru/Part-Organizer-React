@@ -1,7 +1,8 @@
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
-import { defineConfig } from 'vite';
+import { defineConfig, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import type { UserConfig as VitestUserConfig } from 'vitest/config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,4 +23,4 @@ export default defineConfig({
     },
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
-});
+} as UserConfig & VitestUserConfig);
