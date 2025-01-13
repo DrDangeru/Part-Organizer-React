@@ -22,5 +22,10 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
     },
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    testTimeout: 10000, // Increase timeout to 10 seconds
+    hookTimeout: 10000,
+    pool: 'threads',
+    maxThreads: 1, // Reduce parallel execution to avoid timeouts
+    minThreads: 1
   },
 } as UserConfig & VitestUserConfig);

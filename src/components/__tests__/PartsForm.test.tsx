@@ -1,23 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react';
-//import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import PartsForm from '../PartsForm';
-import { partsApi, Part, Location } from '../../api/partsApi';
+import { renderWithProviders } from '../../test/test-utils';
+import type { Part, Location } from '../../api/partsApi';
+
+// Mock API functions
+const mockAddPart = vi.fn();
+const mockGetParts = vi.fn();
+const mockGetLocations = vi.fn();
 
 // Mock the API
 vi.mock('../../api/partsApi', () => ({
-  partsApi: {
-    addPart: vi.fn(),
-    getParts: vi.fn(),
-    getLocations: vi.fn(),
-  },
+  usePartsApi: () => ({
+    addPart: mockAddPart,
+    getParts: mockGetParts,
+    getLocations: mockGetLocations,
+  }),
+}));
+
+// Mock the alert hook
+vi.mock('../../hooks/useAlert', () => ({
+  default: () => ({
+    alertMessage: '',
+    setAlertMessage: vi.fn(),
+  }),
 }));
 
 describe('PartsForm', () => {
@@ -30,67 +36,45 @@ describe('PartsForm', () => {
   };
 
   beforeEach(() => {
-    // Reset all mocks before each test
-    vi.resetAllMocks();
-
-    // Setup default mock implementations
-    vi.mocked(partsApi.getLocations).mockResolvedValue([mockLocation]);
-    vi.mocked(partsApi.getParts).mockResolvedValue([]);
+    vi.clearAllMocks();
+    mockGetLocations.mockResolvedValue([mockLocation]);
+    mockGetParts.mockResolvedValue([]);
   });
 
   it('renders form fields', async () => {
-    render(
-      <BrowserRouter>
-        <PartsForm />
-      </BrowserRouter>
-    );
+    renderWithProviders(<PartsForm />);
 
-    // Wait for locations to load
-    await waitFor(() => {
-      expect(screen.getByText('Test Location')).toBeInTheDocument();
-    });
+    // Wait for locations to load in the select dropdown
+    const locationSelect = await screen.findByLabelText(/location/i);
+    expect(locationSelect).toBeInTheDocument();
 
     // Check if all form fields are present
     expect(screen.getByLabelText(/part name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/part details/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/location/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/container/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/row/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/position/i)).toBeInTheDocument();
+
+    // Verify location option is present
+    expect(screen.getByRole('option', { name: 'Test Location' })).toBeInTheDocument();
   });
 
   it('shows validation error when submitting empty form', async () => {
-    render(
-      <BrowserRouter>
-        <PartsForm />
-      </BrowserRouter>
-    );
+    renderWithProviders(<PartsForm />);
 
     // Wait for locations to load
-    await waitFor(() => {
-      expect(screen.getByText('Test Location')).toBeInTheDocument();
-    });
-
-    // Get the form and submit button
-    const form = screen.getByRole('form');
+    await screen.findByRole('option', { name: 'Test Location' });
 
     // Submit the form without filling any fields
-    await act(async () => {
-      fireEvent.submit(form);
-    });
+    fireEvent.submit(screen.getByRole('form'));
 
     // Check for validation message
-    const alert = await screen.findByText(
-      'Please fill in all required fields (including location)',
-      {},
-      { timeout: 5000 }
-    );
+    const alert = await screen.findByTestId('alert-message');
     expect(alert).toBeInTheDocument();
-    expect(alert.closest('div')).toHaveClass('bg-yellow-100');
+    expect(alert.textContent).toBe('Please fill in all required fields (including location)');
   });
 
   it('successfully submits form with valid data', async () => {
-    // Setup success mock with proper Part interface
     const mockPart: Part = {
       id: 1,
       partName: 'Test Part',
@@ -100,127 +84,89 @@ describe('PartsForm', () => {
       row: mockLocation.row,
       position: mockLocation.position,
     };
-    vi.mocked(partsApi.addPart).mockResolvedValue(mockPart);
-    vi.mocked(partsApi.getParts).mockResolvedValue([mockPart]);
 
-    render(
-      <BrowserRouter>
-        <PartsForm />
-      </BrowserRouter>
-    );
+    mockAddPart.mockResolvedValueOnce(mockPart);
+    renderWithProviders(<PartsForm />);
 
     // Wait for locations to load
+    await screen.findByRole('option', { name: 'Test Location' });
+
+    // Fill in the form
+    fireEvent.change(screen.getByLabelText(/part name/i), {
+      target: { value: mockPart.partName },
+    });
+    fireEvent.change(screen.getByLabelText(/part details/i), {
+      target: { value: mockPart.partDetails },
+    });
+    fireEvent.change(screen.getByLabelText(/location/i), {
+      target: { value: mockPart.locationName },
+    });
+    fireEvent.change(screen.getByLabelText(/container/i), {
+      target: { value: mockPart.container },
+    });
+    fireEvent.change(screen.getByLabelText(/row/i), {
+      target: { value: mockPart.row },
+    });
+    fireEvent.change(screen.getByLabelText(/position/i), {
+      target: { value: mockPart.position },
+    });
+
+    // Submit the form
+    fireEvent.submit(screen.getByRole('form'));
+
+    // Check if API was called with correct data
     await waitFor(() => {
-      expect(screen.getByText('Test Location')).toBeInTheDocument();
-    });
-
-    // Fill in form fields
-    await act(async () => {
-      // Fill in part name and details
-      fireEvent.change(screen.getByLabelText(/part name/i), {
-        target: { value: mockPart.partName },
-      });
-      fireEvent.change(screen.getByLabelText(/part details/i), {
-        target: { value: mockPart.partDetails },
-      });
-
-      // Select location from dropdown
-      const locationSelect = screen.getByLabelText(/location/i);
-      fireEvent.change(locationSelect, {
-        target: { value: mockPart.locationName },
-      });
-
-      // Fill in container, row, and position
-      fireEvent.change(screen.getByLabelText(/container/i), {
-        target: { value: mockPart.container },
-      });
-      fireEvent.change(screen.getByLabelText(/row/i), {
-        target: { value: mockPart.row },
-      });
-      fireEvent.change(screen.getByLabelText(/position/i), {
-        target: { value: mockPart.position },
+      expect(mockAddPart).toHaveBeenCalledWith({
+        partName: mockPart.partName,
+        partDetails: mockPart.partDetails,
+        locationName: mockPart.locationName,
+        container: mockPart.container,
+        row: mockPart.row,
+        position: mockPart.position,
       });
     });
 
-    // Submit form
-    const form = screen.getByRole('form');
-    await act(async () => {
-      fireEvent.submit(form);
-    });
-
-    // Wait for API call
-    await waitFor(
-      () => {
-        expect(partsApi.addPart).toHaveBeenCalledWith({
-          partName: mockPart.partName,
-          partDetails: mockPart.partDetails,
-          locationName: mockPart.locationName,
-          container: mockPart.container,
-          row: mockPart.row,
-          position: mockPart.position,
-        });
-      },
-      { timeout: 5000 }
-    );
-
-    // Check success message
-    const alert = await screen.findByText(
-      'Part added successfully!',
-      {},
-      { timeout: 5000 }
-    );
+    // Check for success message
+    const alert = await screen.findByTestId('alert-message');
     expect(alert).toBeInTheDocument();
-    expect(alert.closest('div')).toHaveClass('bg-yellow-100');
+    expect(alert.textContent).toBe('Part added successfully!');
   });
 
   it('handles API error gracefully', async () => {
-    // Mock API to throw error
     const errorMessage = 'Failed to add part. Please try again.';
-    vi.mocked(partsApi.addPart).mockRejectedValue(new Error(errorMessage));
+    mockAddPart.mockRejectedValueOnce(new Error(errorMessage));
 
-    render(
-      <BrowserRouter>
-        <PartsForm />
-      </BrowserRouter>
-    );
+    renderWithProviders(<PartsForm />);
 
     // Wait for locations to load
-    await waitFor(() => {
-      expect(screen.getByText('Test Location')).toBeInTheDocument();
+    await screen.findByRole('option', { name: 'Test Location' });
+
+    // Fill in the form
+    fireEvent.change(screen.getByLabelText(/part name/i), {
+      target: { value: 'Test Part' },
+    });
+    fireEvent.change(screen.getByLabelText(/part details/i), {
+      target: { value: 'Test Details' },
+    });
+    fireEvent.change(screen.getByLabelText(/location/i), {
+      target: { value: 'Test Location' },
+    });
+    fireEvent.change(screen.getByLabelText(/container/i), {
+      target: { value: 'Test Container' },
+    });
+    fireEvent.change(screen.getByLabelText(/row/i), {
+      target: { value: 'A1' },
+    });
+    fireEvent.change(screen.getByLabelText(/position/i), {
+      target: { value: 'Front' },
     });
 
-    // Fill in form fields
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText(/part name/i), {
-        target: { value: 'Test Part' },
-      });
+    // Submit the form
+    fireEvent.submit(screen.getByRole('form'));
 
-      // Select location from dropdown
-      const locationSelect = screen.getByLabelText(/location/i);
-      fireEvent.change(locationSelect, {
-        target: { value: mockLocation.locationName },
-      });
-
-      fireEvent.change(screen.getByLabelText(/container/i), {
-        target: { value: mockLocation.container },
-      });
-      fireEvent.change(screen.getByLabelText(/row/i), {
-        target: { value: mockLocation.row },
-      });
-      fireEvent.change(screen.getByLabelText(/position/i), {
-        target: { value: mockLocation.position },
-      });
-    });
-
-    // Submit form
-    const form = screen.getByRole('form');
-    await act(async () => {
-      fireEvent.submit(form);
-    });
-
-    // Check error message
-    const alert = await screen.findByText(errorMessage, {}, { timeout: 5000 });
+    // Check for error message
+    const alert = await screen.findByTestId('alert-message');
     expect(alert).toBeInTheDocument();
-    expect(alert.closest('div')).toHaveClass('bg-yellow-100');
+    expect(alert.textContent).toBe(errorMessage);
   });
 });

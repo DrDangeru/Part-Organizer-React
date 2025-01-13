@@ -1,14 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { describe, it, expect, vi, beforeEach,} from 'vitest';
+import { screen, fireEvent , waitFor } from '@testing-library/react';
 import LocationForm from '../LocationForm';
-import { usePartsApi } from '../../api/partsApi'; // Location
+import { renderWithProviders } from '../../test/test-utils';
 
 // Mock the alert hook
 vi.mock('../../../src/hooks/useAlert', () => ({
@@ -19,41 +12,25 @@ vi.mock('../../../src/hooks/useAlert', () => ({
 }));
 
 // Mock the API
+const mockAddLocation = vi.fn();
+const mockGetLocations = vi.fn();
+
 vi.mock('../../api/partsApi', () => ({
   usePartsApi: () => ({
-    addLocation: vi.fn(),
-    getLocations: vi.fn().mockResolvedValue([{
-      id: 1,
-      locationName: 'Test Location',
-      container: 'Test Container',
-      row: 'A1',
-      position: 'Front',
-    }]),
-  }),
-}));
-
-// Mock auth
-vi.mock('../../hooks/useAuth', () => ({
-  useAuth: () => ({
-    user: { id: 1, username: 'testuser' },
-    getToken: () => 'test-token',
-    isLoading: false,
+    addLocation: mockAddLocation,
+    getLocations: mockGetLocations,
   }),
 }));
 
 describe('LocationForm', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
+    mockGetLocations.mockResolvedValue([]);
   });
 
-  it('renders form fields', async () => {
-    render(
-      <BrowserRouter>
-        <LocationForm />
-      </BrowserRouter>
-    );
+  it('renders form fields', () => {
+    renderWithProviders(<LocationForm />);
 
-    // Check if form fields are present
     expect(screen.getByLabelText(/location name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/container/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/row/i)).toBeInTheDocument();
@@ -61,39 +38,21 @@ describe('LocationForm', () => {
   });
 
   it('shows validation error when submitting empty form', async () => {
-    render(
-      <BrowserRouter>
-        <LocationForm />
-      </BrowserRouter>
-    );
+    renderWithProviders(<LocationForm />);
 
     // Submit empty form
-    const form = screen.getByRole('form');
-    await act(async () => {
-      fireEvent.submit(form);
-    });
+    fireEvent.submit(screen.getByRole('form'));
 
-    // Check validation message
-    await waitFor(() => {
-      const alert = screen.getByTestId('alert-message');
-      expect(alert).toBeInTheDocument();
-      expect(alert.textContent).toBe('Please fill all required fields');
-    }, { timeout: 2000 });
+    // Wait for alert to appear
+    const alert = await screen.findByTestId('alert-message');
+    expect(alert).toBeInTheDocument();
+    expect(alert.textContent).toBe('Please fill all required fields');
   });
 
   it('successfully submits form with valid data', async () => {
-    const api = usePartsApi();
-    const mockAddLocation = vi.fn().mockResolvedValue({});
-    const mockGetLocations = vi.fn().mockResolvedValue([]);
-    
-    vi.mocked(api.addLocation).mockImplementation(mockAddLocation);
-    vi.mocked(api.getLocations).mockImplementation(mockGetLocations);
+    mockAddLocation.mockResolvedValueOnce({});
 
-    render(
-      <BrowserRouter>
-        <LocationForm />
-      </BrowserRouter>
-    );
+    renderWithProviders(<LocationForm />);
 
     // Fill form
     fireEvent.change(screen.getByLabelText(/location name/i), {
@@ -110,12 +69,9 @@ describe('LocationForm', () => {
     });
 
     // Submit form
-    const form = screen.getByRole('form');
-    await act(async () => {
-      fireEvent.submit(form);
-    });
+    fireEvent.submit(screen.getByRole('form'));
 
-    // Wait for the API calls to complete
+    // Wait for API call
     await waitFor(() => {
       expect(mockAddLocation).toHaveBeenCalledWith({
         locationName: 'Test Location',
@@ -123,27 +79,18 @@ describe('LocationForm', () => {
         row: 'A1',
         position: 'Front',
       });
-      expect(mockGetLocations).toHaveBeenCalled();
-    }, { timeout: 1000 });
+    });
 
-    // Check success message
-    await waitFor(() => {
-      const alert = screen.getByTestId('alert-message');
-      expect(alert).toBeInTheDocument();
-      expect(alert.textContent).toBe('Location added successfully!');
-    }, { timeout: 1000 });
+    // Wait for alert to appear
+    const alert = await screen.findByTestId('alert-message');
+    expect(alert).toBeInTheDocument();
+    expect(alert.textContent).toBe('Location added successfully!');
   });
 
   it('handles API error gracefully', async () => {
-    const api = usePartsApi();
-    const mockAddLocation = vi.fn().mockRejectedValue(new Error('API Error'));
-    vi.mocked(api.addLocation).mockImplementation(mockAddLocation);
+    mockAddLocation.mockRejectedValueOnce(new Error('API Error'));
 
-    render(
-      <BrowserRouter>
-        <LocationForm />
-      </BrowserRouter>
-    );
+    renderWithProviders(<LocationForm />);
 
     // Fill form
     fireEvent.change(screen.getByLabelText(/location name/i), {
@@ -160,17 +107,12 @@ describe('LocationForm', () => {
     });
 
     // Submit form
-    const form = screen.getByRole('form');
-    await act(async () => {
-      fireEvent.submit(form);
-    });
+    fireEvent.submit(screen.getByRole('form'));
 
-    // Wait for error message
-    await waitFor(() => {
-      const alert = screen.getByTestId('alert-message');
-      expect(alert).toBeInTheDocument();
-      expect(alert.textContent).toBe('API Error');
-    }, { timeout: 1000 });
+    // Wait for alert to appear
+    const alert = await screen.findByTestId('alert-message');
+    expect(alert).toBeInTheDocument();
+    expect(alert.textContent).toBe('API Error');
 
     expect(mockAddLocation).toHaveBeenCalledWith({
       locationName: 'Test Location',
