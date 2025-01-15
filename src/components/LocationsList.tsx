@@ -5,7 +5,6 @@ import useAlert from '../hooks/useAlert';
 
 const LocationsList = () => {
   const [locations, setLocations] = useState<Location[]>([]);
-  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { alertMessage, setAlertMessage } = useAlert(6000); // 6 seconds
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -19,15 +18,15 @@ const LocationsList = () => {
         setError(null);
       } catch (err) {
         console.error('Error fetching locations:', err);
-        setError('Failed to fetch locations');
-        setAlertMessage(`Failed to fetch locations ${error}`);
+        const errorMessage = 'Failed to fetch locations';
+        setError(errorMessage);
+        setAlertMessage(errorMessage);
       } finally {
-       console.log('Locations fetched');
-        // setLoading(false); not in use, maybe add later..
+        console.log('Locations fetched');
       }
     };
     fetchLocations();
-  }, [api, setAlertMessage, error]);
+  }, [api, setAlertMessage]); // Removed error from dependencies
 
   const filteredLocations = locations.filter(
     location =>

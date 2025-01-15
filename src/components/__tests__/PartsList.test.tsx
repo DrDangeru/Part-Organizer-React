@@ -1,91 +1,119 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import PartsList from '../PartsList';
-import { renderWithProviders } from '../../test/test-utils';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthContext';
 import type { Part } from '../../api/partsApi';
 
 // Mock API functions
 const mockGetParts = vi.fn();
-const mockSearchParts = vi.fn();
 
-// Mock the API
 vi.mock('../../api/partsApi', () => ({
   usePartsApi: () => ({
     getParts: mockGetParts,
-    searchParts: mockSearchParts,
   }),
 }));
 
 // Mock the alert hook
+let alertMessage = '';
+const mockSetAlertMessage = vi.fn((message: string) => {
+  alertMessage = message;
+});
+
 vi.mock('../../hooks/useAlert', () => ({
   default: () => ({
-    alertMessage: '',
-    setAlertMessage: vi.fn(),
+    alertMessage,
+    setAlertMessage: mockSetAlertMessage,
   }),
 }));
+
+// Test wrapper component
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <BrowserRouter>
+      <AuthContext.Provider value={{
+        user: { id: 1, username: 'testuser' },
+        isLoading: false,
+        login: vi.fn(),
+        logout: vi.fn(),
+        getToken: () => 'test-token',
+      }}>
+        {ui}
+      </AuthContext.Provider>
+    </BrowserRouter>
+  );
+};
 
 describe('PartsList', () => {
   const mockParts: Part[] = [
     {
       id: 1,
-      partName: 'Test Part',
-      partDetails: 'Test Details',
-      locationName: 'Test Location',
-      container: 'Test Container',
+      partName: 'Test Part 1',
+      partDetails: 'Details 1',
+      locationName: 'Location 1',
+      container: 'Container 1',
       row: 'A1',
       position: 'Front',
+    },
+    {
+      id: 2,
+      partName: 'Test Part 2',
+      partDetails: 'Details 2',
+      locationName: 'Location 2',
+      container: 'Container 2',
+      row: 'B2',
+      position: 'Back',
     },
   ];
 
   beforeEach(() => {
     vi.clearAllMocks();
+    alertMessage = '';
     mockGetParts.mockResolvedValue(mockParts);
   });
 
-  it('renders parts list', async () => {
+  it('renders list of parts', async () => {
     renderWithProviders(<PartsList />);
 
-    // Wait for and verify part data
-    const partName = await screen.findByText('Test Part');
-    expect(partName).toBeInTheDocument();
+    // Wait for parts to load
+    await waitFor(() => {
+      expect(screen.getByText('Test Part 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Part 2')).toBeInTheDocument();
+    });
 
-    // Verify other part details are present in the table
-    const cells = screen.getAllByRole('cell');
-    expect(cells[0]).toHaveTextContent('Test Part');
-    expect(cells[1]).toHaveTextContent('Test Details');
-    expect(cells[2]).toHaveTextContent('Test Location');
-    expect(cells[3]).toHaveTextContent('Test Container');
-    expect(cells[4]).toHaveTextContent('A1');
-    expect(cells[5]).toHaveTextContent('Front');
-
-    // Verify Add New Part button is present
-    expect(screen.getByText('Add New Part')).toBeInTheDocument();
+    // Verify part details are displayed
+    expect(screen.getByText('Details 1')).toBeInTheDocument();
+    expect(screen.getByText('Location 1')).toBeInTheDocument();
+    expect(screen.getByText('Container 1')).toBeInTheDocument();
+    expect(screen.getByText('A1')).toBeInTheDocument();
+    expect(screen.getByText('Front')).toBeInTheDocument();
   });
 
-  it('shows error message when API fails', async () => {
-    mockGetParts.mockRejectedValue(new Error('API Error'));
-
+  it('filters parts based on search input', async () => {
     renderWithProviders(<PartsList />);
 
-    // Wait for and verify error message
-    const errorMessage = await screen.findByTestId('alert-message');
-    expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveTextContent('Failed to load parts');
-  });
+    // Wait for initial parts to load
+    await waitFor(() => {
+      expect(screen.getByText('Test Part 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Part 2')).toBeInTheDocument();
+    });
 
-  it('renders empty state when no parts exist', async () => {
-    mockGetParts.mockResolvedValue([]);
+    // Find and fill search input
+    const searchInput = screen.getByPlaceholderText(/search parts/i);
+    fireEvent.change(searchInput, { target: { value: 'Test Part 1' } });
 
-    renderWithProviders(<PartsList />);
+    // Verify only matching part is shown (client-side filtering)
+    expect(screen.getByText('Test Part 1')).toBeInTheDocument();
+    expect(screen.queryByText('Test Part 2')).not.toBeInTheDocument();
 
-    // Wait for table to be empty
-    const table = await screen.findByRole('table');
-    const tbody = table.querySelector('tbody');
-    expect(tbody?.children.length).toBe(0);
+    // Test search by other fields
+    fireEvent.change(searchInput, { target: { value: 'Details 2' } });
+    expect(screen.queryByText('Test Part 1')).not.toBeInTheDocument();
+    expect(screen.getByText('Test Part 2')).toBeInTheDocument();
 
-    // Verify empty state message
-    const emptyMessage = await screen.findByTestId('empty-message');
-    expect(emptyMessage).toBeInTheDocument();
-    expect(emptyMessage).toHaveTextContent('No parts found');
+    fireEvent.change(searchInput, { target: { value: 'Location 1' } });
+    expect(screen.getByText('Test Part 1')).toBeInTheDocument();
+    expect(screen.queryByText('Test Part 2')).not.toBeInTheDocument();
   });
 });

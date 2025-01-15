@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import PartsForm from '../PartsForm';
-import { renderWithProviders } from '../../test/test-utils';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthContext';
 import type { Part, Location } from '../../api/partsApi';
 
 // Mock API functions
@@ -19,12 +21,34 @@ vi.mock('../../api/partsApi', () => ({
 }));
 
 // Mock the alert hook
+let alertMessage = '';
+const mockSetAlertMessage = vi.fn((message: string) => {
+  alertMessage = message;
+});
+
 vi.mock('../../hooks/useAlert', () => ({
   default: () => ({
-    alertMessage: '',
-    setAlertMessage: vi.fn(),
+    alertMessage,
+    setAlertMessage: mockSetAlertMessage,
   }),
 }));
+
+// Test wrapper component
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <BrowserRouter>
+      <AuthContext.Provider value={{
+        user: { id: 1, username: 'testuser' },
+        isLoading: false,
+        login: vi.fn(),
+        logout: vi.fn(),
+        getToken: () => 'test-token',
+      }}>
+        {ui}
+      </AuthContext.Provider>
+    </BrowserRouter>
+  );
+};
 
 describe('PartsForm', () => {
   const mockLocation: Location = {
@@ -37,6 +61,7 @@ describe('PartsForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    alertMessage = '';
     mockGetLocations.mockResolvedValue([mockLocation]);
     mockGetParts.mockResolvedValue([]);
   });
@@ -69,9 +94,9 @@ describe('PartsForm', () => {
     fireEvent.submit(screen.getByRole('form'));
 
     // Check for validation message
-    const alert = await screen.findByTestId('alert-message');
-    expect(alert).toBeInTheDocument();
-    expect(alert.textContent).toBe('Please fill in all required fields (including location)');
+    await waitFor(() => {
+      expect(mockSetAlertMessage).toHaveBeenCalledWith('Please fill in all required fields (including location)');
+    });
   });
 
   it('successfully submits form with valid data', async () => {
@@ -127,9 +152,9 @@ describe('PartsForm', () => {
     });
 
     // Check for success message
-    const alert = await screen.findByTestId('alert-message');
-    expect(alert).toBeInTheDocument();
-    expect(alert.textContent).toBe('Part added successfully!');
+    await waitFor(() => {
+      expect(mockSetAlertMessage).toHaveBeenCalledWith('Part added successfully!');
+    });
   });
 
   it('handles API error gracefully', async () => {
@@ -165,8 +190,8 @@ describe('PartsForm', () => {
     fireEvent.submit(screen.getByRole('form'));
 
     // Check for error message
-    const alert = await screen.findByTestId('alert-message');
-    expect(alert).toBeInTheDocument();
-    expect(alert.textContent).toBe(errorMessage);
+    await waitFor(() => {
+      expect(mockSetAlertMessage).toHaveBeenCalledWith(errorMessage);
+    });
   });
 });

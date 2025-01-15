@@ -11,7 +11,7 @@ const PartsForm = () => {
   const [position, setPosition] = useState('');
   const [locations, setLocations] = useState<Location[]>([]);
   const [parts, setParts] = useState<Part[]>([]);
-  const { alertMessage, setAlertMessage } = useAlert(6000);
+  const {alertMessage, setAlertMessage} = useAlert();
   const api = usePartsApi();
 
   useEffect(() => {
